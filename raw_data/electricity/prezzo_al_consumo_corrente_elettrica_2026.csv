@@ -1,0 +1,11 @@
+﻿FREQ,Frequenza,REF_AREA,Territorio,DATA_TYPE,Indicatore,MEASURE,Misura,ECOICOP_2,ECOICOP 2,TIME_PERIOD,Osservazione,OBS_STATUS,'Stato dell"'osservazione'
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-01,103.4,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-02,103.1,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-03,104.7,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-04,107.4,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-05,106.3,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-06,107.8,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-07,112.2,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-08,113.5,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-09,116.8,,
+M,Mensile,IT,Italia,85,'Indice dei prezzi al consumo per l"'intera collettività (base 2025=100) - dati mensili',4,Numeri indici,0451,Elettricità,2026-10,129,,
