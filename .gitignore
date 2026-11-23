@@ -2,3 +2,5 @@ data.pages
 .venv/
 __pycache__/
 .DS_Store
+# Large official download (~58 MB); fetched automatically by DE/src/04_extraction_charging_points.py
+DE/raw_data/charging_points/Ladesaeulenregister_*.csv

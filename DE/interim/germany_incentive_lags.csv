@@ -1,0 +1,9 @@
+regime_id,name,change_type,announced_date,active_from,active_to,application_open_date,lag_announce_to_active_days,lag_announce_to_application_days,retroactive
+R0,Umweltbonus (original),new,2016-05-18,2016-07-02,2019-11-04,2016-07-02,45,45.0,False
+R1,Umweltbonus raised,increase,2019-11-04,2019-11-05,2020-06-03,2020-02-19,1,107.0,True
+R2,Innovationspraemie (federal share doubled),increase,2020-06-03,2020-06-04,2021-12-31,2020-07-08,1,35.0,True
+R2b,Innovationspraemie extended to 2022,extension,2021-12-13,2022-01-01,2022-12-31,2022-01-01,19,19.0,False
+R3,Umweltbonus 2023 (reduced; PHEV excluded),cut,2022-07-26,2023-01-01,2023-08-31,2023-01-01,159,159.0,False
+R4,Umweltbonus private buyers only,cut,2022-07-26,2023-09-01,2023-12-17,2023-09-01,402,402.0,False
+R5,Umweltbonus stopped,end,2023-12-16,2023-12-18,2025-12-31,,2,,False
+R6,E-Auto-Foerderung 2026 (income based),new,2025-10-09,2026-01-01,2026-11-30,2026-05-19,84,222.0,True
