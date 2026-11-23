@@ -7,7 +7,7 @@ BASE_DIR = (
     if "__file__" in globals()
     else Path.cwd()
 )
-# BASE_DIR = percorso al genitore del genitore dello sript corrente, quindi punta alla cartella DS_project
+# BASE_DIR =percorso al genitore del genitore dello sript corrente, quindi punta alla cartella DS_project 
 
 RAW_DIR = BASE_DIR / "raw_data"
 OUTPUT_DIR = BASE_DIR / "interim"
@@ -150,5 +150,3 @@ df_monthly.to_csv(csv_path, index=False)
 
 
 print(df_monthly.tail(10))
-
-#hii
