@@ -132,8 +132,10 @@ df_monthly["diesel_price_eur_l"] = df_monthly["diesel_price_eur_l"].round(4)
 # arrontonda a 4 cifre decimali (precisione standard al decimo di millesimo di €/litro)
 
 
-df_monthly = df_monthly[df_monthly["date"] >= "2019-01-01"].reset_index(drop=True)
-# Filtriamo dal 2018-01-01 in poi per allinearci al periodo di interesse 
+df_monthly = df_monthly[
+    (df_monthly["date"] >= "2019-01-01") & (df_monthly["date"] <= "2026-10-01")
+].reset_index(drop=True)
+# Filtriamo dal 2019-01-01 a 2026-10-01 per allinearci al periodo di interesse 
 
 
 
