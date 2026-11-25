@@ -83,11 +83,17 @@ df_out["bev_registrations"] = df_pivot[
 
 
 
-df_out["phev_registrations"] = (
-    df_pivot[("Registrations", "Plug-in hybrid")]
-    + df_pivot[("Registrations", "Hybrid")]
+df_out["hybrid_registrations"] = (
+    df_pivot[("Registrations", "Hybrid")]
 ).astype("int64")
-# come sopra ma qui il valore finale è dato da hybrid è plug in hybrid
+# come sopra ma qui il valore finale è dato da hybrid 
+
+
+
+df_out["plug-in_registrations"] = (
+    df_pivot[("Registrations", "Plug-in hybrid")]
+).astype("int64")
+# come sopra ma qui il valore finale è dato da plug in hybrid
 
 
 df_out["total_registrations"] = df_pivot[
@@ -103,11 +109,18 @@ df_out["bev_share"] = df_pivot[
 # Quota BEV direttamente dalla colonna 'Share of registrations (%)' di Ember
 
 
-df_out["phev_share"] = (
+df_out["plug-in_share"] = (
     df_pivot[("Share of registrations (%)", "Plug-in hybrid")]
-    + df_pivot[("Share of registrations (%)", "Hybrid")]
 ).astype("float64")
-#  Quota PHEV (somma della colonna 'Share of registrations (%)' di Plug-in hybrid + Hybrid)
+#  Quota plug-in (somma della colonna 'Share of registrations (%)' di Plug-in hybrid )
+
+
+
+df_out["hybrid_share"] = (
+    df_pivot[("Share of registrations (%)", "Hybrid")]
+).astype("float64")
+#  Quota hybrid (somma della colonna 'Share of registrations (%)' di Hybrid)
+
 
 
 

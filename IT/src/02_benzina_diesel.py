@@ -144,6 +144,15 @@ if df_monthly[["petrol_price_eur_l", "diesel_price_eur_l"]].isna().any().any():
 # Controllo eventuali mesi mancanti
 
 
+
+CONS_PETROL = 6.5  # L/100km (consumo medio reale segmento B/C europeo)
+df_monthly["cost_petrol_100km"] = (df_monthly["petrol_price_eur_l"] * CONS_PETROL).round(2)
+
+CONS_DIESEL = 5.5  # L/100km (consumo medio reale segmento B/C europeo)
+df_monthly["cost_diesel_100km"] = (df_monthly["diesel_price_eur_l"] * CONS_DIESEL).round(2)
+
+
+
 parquet_path = OUTPUT_DIR / "italy_fuel_prices.parquet"
 csv_path = OUTPUT_DIR / "italy_fuel_prices.csv"
 df_monthly.to_parquet(parquet_path, index=False)

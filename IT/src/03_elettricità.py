@@ -13,6 +13,7 @@ INTERIM_DIR.mkdir(parents=True, exist_ok=True)
 FILE_ISTAT_2019_2025 = RAW_DIR / "prezzo_al_consumo_corrente_elettrica_2019_2025.csv"
 FILE_ISTAT_2026 = RAW_DIR / "prezzo_al_consumo_corrente_elettrica_2026.csv"
 FILE_EUROSTAT = RAW_DIR / "prezzi_semestrali_corrente.csv"
+FILE_PETROL = INTERIM_DIR / "italy_fuel_prices.csv"
 
 
 
@@ -153,13 +154,68 @@ def build_monthly_electricity_prices() -> pd.DataFrame:
     df_final["cost_ev_100km"] = (elec_blended_price * 18.0).round(2)
     # Costo medio per 100 km in elettrico (consumo fatturato = 18.0 kWh/100km, perdite di ricarica incluse)
     # i valori di questa colonna sono espressi in euro ogni 100km
+    
+    
+    
+    CONS_UF = 0.5  # % di percorrenza in elettrico delle auto plug-in
+    CONS_CONSUME_ELECTRIC = 19.0  # kWh/100km in modalità elettrica (perdite incluse)
+    CONS_CONSUME_PETROL = 6.0  # L/100km in modalità benzina (a batteria scarica)
+
+    # 1. Carichiamo anche 'date' dal file carburanti e facciamo merge su 'date'
+    df_petrol = pd.read_csv(
+        FILE_PETROL, usecols=["date", "petrol_price_eur_l", "cost_petrol_100km"], parse_dates=["date"]
+    )
+    df_final = df_final.merge(df_petrol, on="date", how="left")
+
+    # 2. Calcoliamo il costo PHEV usando la Series df_final["petrol_price_eur_l"]
+    df_final["cost_phev_100km"] = (
+        (CONS_UF * elec_blended_price * CONS_CONSUME_ELECTRIC)
+        + ((1 - CONS_UF) * df_final["petrol_price_eur_l"] * CONS_CONSUME_PETROL)
+    ).round(2)
+
+
+
+
+
+    # Costo medio per 100 km con auto ibrida non ricaricabile (HEV / Full Hybrid)
+    # Consumo medio reale su strada = 5.0 L/100km di benzina (nessun prelievo dalla rete elettrica)
+    CONS_HEV_PETROL = 5.0
+    df_final["cost_hev_100km"] = (
+        df_final["petrol_price_eur_l"] * CONS_HEV_PETROL
+    ).round(2)
+
+
+
+    df_final["petrol_ev_cost_ratio"] = (
+        df_final["cost_petrol_100km"] / df_final["cost_ev_100km"]
+    ).round(3)
+    # Rapporto di convenienza adimensionale: quanto costa percorrere 100 km a benzina rispetto all'elettrico puro
+    # Un valore > 1 indica che l'elettrico è più conveniente della benzina
+
+    df_final["petrol_phev_cost_ratio"] = (
+        df_final["cost_petrol_100km"] / df_final["cost_phev_100km"]
+    ).round(3)
+    # Rapporto di convenienza adimensionale: quanto costa percorrere 100 km a benzina rispetto al plug-in
+    # Un valore > 1 indica che l'elettrico è più conveniente della benzina
+
+
+    df_final["petrol_hev_cost_ratio"] = (
+        df_final["cost_petrol_100km"] / df_final["cost_hev_100km"]
+    ).round(3)
+    # Rapporto di convenienza adimensionale: quanto costa percorrere 100 km a benzina rispetto al plug-in
+    # Un valore > 1 indica che l'elettrico è più conveniente della benzina
 
     return df_final[[
         "date",
         "elec_domestic_price_eur_kwh",
         "elec_public_price_eur_kwh",
         "cost_ev_100km",
+        "cost_phev_100km",
+        "cost_hev_100km",
         "eurostat_eur_kwh",
+        "petrol_ev_cost_ratio",
+        "petrol_phev_cost_ratio",
+        "petrol_hev_cost_ratio"
     ]].rename(
         columns={
             "eurostat_eur_kwh": "eurostat_sem_anchor_eur_kwh",
@@ -170,9 +226,23 @@ def build_monthly_electricity_prices() -> pd.DataFrame:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     df_elec = build_monthly_electricity_prices()
-    #f_elec.to_parquet(INTERIM_DIR / "italy_electricity_prices.parquet", index=False)
-    #df_elec.to_csv(INTERIM_DIR / "italy_electricity_prices.csv", index=False)
+    df_elec.to_parquet(INTERIM_DIR / "italy_electricity_prices.parquet", index=False)
+    df_elec.to_csv(INTERIM_DIR / "italy_electricity_prices.csv", index=False)
     print(df_elec.to_string(index=False))
     #g
