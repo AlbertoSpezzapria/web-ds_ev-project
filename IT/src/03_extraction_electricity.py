@@ -129,19 +129,49 @@ def build_monthly_electricity_prices() -> pd.DataFrame:
     # in altre parole tutti i dati definiti sin ora stanno in df_final
     
 
-    df_final["elec_price_eur_kwh"] = (df_final["index_val"] * df_final["k_factor"]).round(5)
-    # la colonna elec_price_eur_kwh = prezzo mensile euro/kW nel mese considerato
 
-    return df_final[["date", "elec_price_eur_kwh", "eurostat_eur_kwh"]].rename(
+
+    df_final["elec_domestic_price_eur_kwh"] = (
+        df_final["index_val"] * df_final["k_factor"]
+    ).round(5)
+    # la colonna elec_domestic_price_eur_kwh = prezzo mensile domestico euro/kWh nel mese considerato
+
+    df_final["elec_public_price_eur_kwh"] = (
+        df_final["elec_domestic_price_eur_kwh"] * 2.1
+    ).round(5)
+    # la colonna elec_public_price_eur_kwh = prezzo stimato alla colonnina pubblica (2.1x il prezzo domestico)
+
+
+    elec_blended_price = (
+        0.80 * df_final["elec_domestic_price_eur_kwh"]
+        + 0.20 * df_final["elec_public_price_eur_kwh"]
+    )
+    # Prezzo medio ponderato per ricarica un'auto ev al kWh (80% ricarica domestica + 20% ricarica pubblica)
+
+
+
+    df_final["cost_ev_100km"] = (elec_blended_price * 18.0).round(2)
+    # Costo medio per 100 km in elettrico (consumo fatturato = 18.0 kWh/100km, perdite di ricarica incluse)
+    # i valori di questa colonna sono espressi in euro ogni 100km
+
+    return df_final[[
+        "date",
+        "elec_domestic_price_eur_kwh",
+        "elec_public_price_eur_kwh",
+        "cost_ev_100km",
+        "eurostat_eur_kwh",
+    ]].rename(
         columns={
-            "index_val": "istat_index_base2015",
             "eurostat_eur_kwh": "eurostat_sem_anchor_eur_kwh",
         }
     )
 
 
+
+
+
 if __name__ == "__main__":
     df_elec = build_monthly_electricity_prices()
-    #df_elec.to_parquet(INTERIM_DIR / "italy_electricity_prices.parquet", index=False)
+    #f_elec.to_parquet(INTERIM_DIR / "italy_electricity_prices.parquet", index=False)
     #df_elec.to_csv(INTERIM_DIR / "italy_electricity_prices.csv", index=False)
     print(df_elec.to_string(index=False))
