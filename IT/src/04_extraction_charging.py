@@ -235,10 +235,65 @@ for col in ["charging_points_ac", "charging_points_dc", "charging_points_total"]
 
 
 # ==============================================================================
+# NORMALIZZAZIONE SULLA POPOLAZIONE (COLONNINE PER 100.000 ABITANTI)
+# ==============================================================================
+pop_path = OUTPUT_DIR / "italy_population.csv"
+if not pop_path.exists():
+  raise FileNotFoundError(
+      f"File {pop_path} non trovato. Esegui prima 05_extraction_population.py!"
+  )
+
+df_pop = pd.read_csv(pop_path, parse_dates=["date"])
+# Leggiamo la serie mensile della popolazione italiana e convertiamo 'date' in datetime
+
+df_monthly = pd.merge(
+    df_monthly,
+    df_pop[["date", "population"]],
+    on="date",
+    how="left",
+)
+# Uniamo la colonna 'population' a df_monthly allineando le righe tramite la colonna 'date'
+
+
+
+df_monthly["charging_points_per_100k"] = (
+    (df_monthly["charging_points_total"] / df_monthly["population"]) * 100_000
+).round(2)
+
+df_monthly["charging_points_ac_per_100k"] = (
+    (df_monthly["charging_points_ac"] / df_monthly["population"]) * 100_000
+).round(2)
+
+df_monthly["charging_points_dc_per_100k"] = (
+    (df_monthly["charging_points_dc"] / df_monthly["population"]) * 100_000
+).round(2)
+
+# Calcolo le colonnine ogni 100.000 abitanti (totali, AC e DC) arrotondate a 2 decimali
+
+
+
+
+
+# ==============================================================================
 # CONTROLLI DI QUALITÀ E SALVATAGGIO 
 # ==============================================================================
-if df_monthly[["charging_points_ac", "charging_points_dc", "charging_points_total"]].isna().any().any():
+
+if (
+    df_monthly[[
+        "charging_points_ac",
+        "charging_points_dc",
+        "charging_points_total",
+        "population",
+        "charging_points_per_100k",
+    ]]
+    .isna()
+    .any()
+    .any()
+):
   print("ATTENZIONE: Sono presenti valori NaN nella serie mensile delle colonnine!")
+
+
+
 
 parquet_path = OUTPUT_DIR / "italy_charging_points.parquet"
 csv_path = OUTPUT_DIR / "italy_charging_points.csv"
