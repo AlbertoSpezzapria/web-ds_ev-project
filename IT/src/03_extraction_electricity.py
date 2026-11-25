@@ -175,3 +175,4 @@ if __name__ == "__main__":
     #f_elec.to_parquet(INTERIM_DIR / "italy_electricity_prices.parquet", index=False)
     #df_elec.to_csv(INTERIM_DIR / "italy_electricity_prices.csv", index=False)
     print(df_elec.to_string(index=False))
+    #g
