@@ -1,4 +1,4 @@
-date,elec_domestic_price_eur_kwh,elec_public_price_eur_kwh,cost_electric_100km,eurostat_sem_anchor_eur_kwh
+date,elec_domestic_price_eur_kwh,elec_public_price_eur_kwh,cost_ev_100km,eurostat_sem_anchor_eur_kwh
 2019-01-01,0.23557,0.4947,5.17,0.2301
 2019-02-01,0.23456,0.49258,5.15,0.2301
 2019-03-01,0.23436,0.49216,5.15,0.2301
