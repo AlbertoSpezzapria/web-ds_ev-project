@@ -5,7 +5,7 @@ Source: European Commission Weekly Oil Bulletin, historical .xlsx, sheet
 averaged per calendar month. Mirrors IT/src/02_extraction_prices.py.
 
 Output: DE/interim/germany_fuel_prices.(parquet|csv)
-    date, petrol_price_eur_l, diesel_price_eur_l
+    date, petrol_price_eur_l, diesel_price_eur_l, cost_petrol_100km, cost_diesel_100km
 """
 from pathlib import Path
 
@@ -16,6 +16,11 @@ import pandas as pd
 # ------------------------------------------------------------------------------
 COUNTRY_CODE = "DE"        # columns in the bulletin are named e.g. "DE_price_with_tax_euro95"
 START_DATE = "2019-01-01"  # same time window as the Italy pipeline
+
+# Average real-world consumption of a B/C-segment car, same values as Italy
+# (common/SCHEMA.md), so the cost per 100 km is comparable between countries.
+CONS_PETROL = 6.5  # l/100 km
+CONS_DIESEL = 5.5  # l/100 km
 
 BASE_DIR = Path(__file__).resolve().parent.parent  # .../DE
 REPO_DIR = BASE_DIR.parent                         # repository root
@@ -81,6 +86,10 @@ monthly = (
     .reset_index()
 )
 monthly = monthly[monthly["date"] >= START_DATE].reset_index(drop=True)
+
+# Running cost in EUR to drive 100 km (price per litre * litres per 100 km).
+monthly["cost_petrol_100km"] = (monthly["petrol_price_eur_l"] * CONS_PETROL).round(2)
+monthly["cost_diesel_100km"] = (monthly["diesel_price_eur_l"] * CONS_DIESEL).round(2)
 
 # ------------------------------------------------------------------------------
 # CHECKS
