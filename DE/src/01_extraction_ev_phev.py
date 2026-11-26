@@ -1,12 +1,16 @@
-"""Monthly BEV / PHEV / total car registrations for Germany (source: Ember).
+"""Monthly BEV / plug-in hybrid / hybrid / total car registrations for Germany (source: Ember).
 
-Mirrors IT/src/01_extraction_ev_phev.py and produces the same columns, with one
-deliberate difference: phev_* uses ONLY the "Plug-in hybrid" drivetrain. Ember's
-"Hybrid" category is non-plug-in full hybrids (HEV), which are not PHEVs.
+Mirrors IT/src/01_immatricolazioni.py and produces the same columns (see
+common/SCHEMA.md). Ember drivetrains used:
+    "Battery electric" -> bev_*        (BEV)
+    "Plug-in hybrid"   -> plug-in_*    (PHEV, rechargeable from the grid)
+    "Hybrid"           -> hybrid_*     (HEV, full hybrids that can't be plugged in)
+    "All drivetrains"  -> total_registrations
 
 Output: DE/interim/germany_ev_monthly.(parquet|csv)
-    date, bev_registrations, phev_registrations, total_registrations,
-    bev_share, phev_share   (shares are in percent, 0-100)
+    date, bev_registrations, hybrid_registrations, plug-in_registrations,
+    total_registrations, bev_share, plug-in_share, hybrid_share
+    (shares are in percent, 0-100)
 """
 from pathlib import Path
 
@@ -63,10 +67,12 @@ pivot = df.pivot_table(
 # so they line up by position with the dates in pivot.index.
 out = pd.DataFrame({"date": pd.to_datetime(pivot.index)})
 out["bev_registrations"] = pivot[("Registrations", "Battery electric")].to_numpy()
-out["phev_registrations"] = pivot[("Registrations", "Plug-in hybrid")].to_numpy()
+out["hybrid_registrations"] = pivot[("Registrations", "Hybrid")].to_numpy()
+out["plug-in_registrations"] = pivot[("Registrations", "Plug-in hybrid")].to_numpy()
 out["total_registrations"] = pivot[("Registrations", "All drivetrains")].to_numpy()
 out["bev_share"] = pivot[("Share of registrations (%)", "Battery electric")].to_numpy()
-out["phev_share"] = pivot[("Share of registrations (%)", "Plug-in hybrid")].to_numpy()
+out["plug-in_share"] = pivot[("Share of registrations (%)", "Plug-in hybrid")].to_numpy()
+out["hybrid_share"] = pivot[("Share of registrations (%)", "Hybrid")].to_numpy()
 
 # Keep the study window and sort chronologically, renumbering rows 0, 1, 2, ...
 out = out[out["date"] >= START_DATE].sort_values("date").reset_index(drop=True)
@@ -77,7 +83,7 @@ out = out[out["date"] >= START_DATE].sort_values("date").reset_index(drop=True)
 # 1. No missing values (a missing value would also block the int conversion).
 if out.isna().any().any():
     print("WARNING: missing values:\n", out[out.isna().any(axis=1)])
-for col in ["bev_registrations", "phev_registrations", "total_registrations"]:
+for col in ["bev_registrations", "hybrid_registrations", "plug-in_registrations", "total_registrations"]:
     out[col] = out[col].astype("int64")
 
 # 2. No missing months: compare with the full list of month starts ("MS")

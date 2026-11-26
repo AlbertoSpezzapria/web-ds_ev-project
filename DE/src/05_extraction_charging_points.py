@@ -27,10 +27,18 @@ Stocks are measured on the 1st day of each month, like the official table
 ("Stand 01. Oktober 2026" = stock at 2026-10-01). Units are charging POINTS,
 not stations: a station with 2 sockets counts as 2.
 
-Output: DE/interim/germany_charging_points.(parquet|csv)
-    date, charging_points_total, charging_points_fast   -> use these in the model
-    register_total  -> raw register count, kept only to show where the monthly
-                       shape comes from; NOT a reliable level
+Normal points (Normalladepunkte, AC up to 22 kW) = total - fast; fast points
+(Schnellladepunkte) are those above 22 kW, mostly DC.
+
+Output: DE/interim/germany_charging_points.(parquet|csv), same columns as Italy
+(common/SCHEMA.md):
+    date, charging_points_normal, charging_points_fast, source,
+    charging_points_total, is_interpolated, population,
+    charging_points_per_100k, charging_points_normal_per_100k, charging_points_fast_per_100k
+source = "BNetzA_official" on quarter dates, "BNetzA_register_scaled" in the
+other months (is_interpolated = True). The raw register count is not saved:
+it is not a reliable level.
+Needs DE/interim/germany_population (script 04).
 """
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -48,6 +56,7 @@ INTERIM_DIR = BASE_DIR / "interim"
 INTERIM_DIR.mkdir(parents=True, exist_ok=True)
 
 FILE_STATS = RAW_DIR / "Ladesaeuleninfrastruktur_in_Zahlen.xlsx"
+FILE_POPULATION = INTERIM_DIR / "germany_population.parquet"  # output of script 04
 
 # Direct link to the register CSV, taken from the BNetzA page. The file name
 # contains the publication date: update it when a newer list is published.
@@ -168,7 +177,27 @@ def build() -> pd.DataFrame:
         print("WARNING: the stock decreases in some months:")
         print(monthly[monthly["charging_points_total"].diff() < 0])
 
-    return monthly[["date", "charging_points_total", "charging_points_fast", "register_total"]]
+    # Normal = total - fast (on quarter dates this equals the official normal count).
+    monthly["charging_points_normal"] = monthly["charging_points_total"] - monthly["charging_points_fast"]
+    on_quarter = monthly["date"].isin(official["date"])
+    monthly["is_interpolated"] = ~on_quarter
+    monthly["source"] = on_quarter.map({True: "BNetzA_official", False: "BNetzA_register_scaled"})
+
+    # --- density per 100,000 inhabitants ---------------------------------------
+    if not FILE_POPULATION.exists():
+        raise FileNotFoundError(f"{FILE_POPULATION} not found: run 04_extraction_population.py first")
+    pop = pd.read_parquet(FILE_POPULATION, columns=["date", "population"])
+    monthly = monthly.merge(pop, on="date", how="left")
+    for col, name in [("charging_points_total", "charging_points_per_100k"),
+                      ("charging_points_normal", "charging_points_normal_per_100k"),
+                      ("charging_points_fast", "charging_points_fast_per_100k")]:
+        monthly[name] = (monthly[col] / monthly["population"] * 100_000).round(2)
+
+    return monthly[[
+        "date", "charging_points_normal", "charging_points_fast", "source",
+        "charging_points_total", "is_interpolated", "population",
+        "charging_points_per_100k", "charging_points_normal_per_100k", "charging_points_fast_per_100k",
+    ]]
 
 
 if __name__ == "__main__":
